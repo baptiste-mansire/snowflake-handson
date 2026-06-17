@@ -54,7 +54,7 @@ SELECT PARSE_JSON(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
 ))['results'] AS RESULTATS;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 💡 POINT ANIMATEUR :
+-- 💡 INFO :
 -- ILIKE '%batterie%' ne trouverait que le mot exact "batterie".
 -- Cortex Search trouve "dies quickly", "doesn't hold charge", "power issues"...
 -- C'est la différence entre un CTRL+F et un moteur de recherche intelligent.
