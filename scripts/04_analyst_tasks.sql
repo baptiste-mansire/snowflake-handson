@@ -35,19 +35,24 @@ DECLARE
     v_count INT;
     v_avg_rating FLOAT;
     v_top_issue VARCHAR;
+    v_complaints VARCHAR;
 BEGIN
     SELECT COUNT(*), AVG(RATING)
     INTO :v_count, :v_avg_rating
     FROM SILVER.REVIEWS_ENRICHED;
 
+    SELECT LISTAGG(LEFT(REVIEW_TEXT, 150), ' | ')
+    INTO :v_complaints
+    FROM (SELECT REVIEW_TEXT FROM SILVER.REVIEWS_ENRICHED WHERE RATING <= 2 LIMIT 20);
+
     SELECT SNOWFLAKE.CORTEX.COMPLETE(
         'llama3.1-8b',
-        'Summarize these customer complaints in 3 bullet points. Be specific and actionable.\n\n' ||
-        (SELECT LISTAGG(LEFT(REVIEW_TEXT, 150), ' | ')
-         FROM (SELECT REVIEW_TEXT FROM SILVER.REVIEWS_ENRICHED WHERE RATING <= 2 LIMIT 20))
-    ) INTO :v_summary;
+        'Summarize these customer complaints in 3 bullet points. Be specific and actionable.\n\n' || :v_complaints
+    )
+    INTO :v_summary;
 
-    SELECT TOPIC INTO :v_top_issue
+    SELECT TOPIC
+    INTO :v_top_issue
     FROM SILVER.REVIEWS_ENRICHED
     WHERE RATING <= 2
     GROUP BY TOPIC
